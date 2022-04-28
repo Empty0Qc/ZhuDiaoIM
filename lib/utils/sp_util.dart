@@ -37,8 +37,8 @@ class SpUtil {
     return _spf!.setString(key, val);
   }
 
-  String? getString(String key) {
-    return _spf!.getString(key);
+  String getString(String key) {
+    return _spf!.getString(key) ?? "";
   }
 
   Future<bool> remove(String key) {

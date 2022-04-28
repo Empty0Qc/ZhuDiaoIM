@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_im_app/router/router_map.dart';
-import 'package:flutter_im_app/utils/sp_util.dart';
 import 'package:get/get.dart';
 
 class DefaultApp {
@@ -20,7 +19,7 @@ class MyApp extends StatelessWidget {
       getPages: RouterMap.getPages,
 
       /// page change Anim
-      defaultTransition: Transition.zoom,
+      defaultTransition: Transition.rightToLeft,
     );
   }
 }
