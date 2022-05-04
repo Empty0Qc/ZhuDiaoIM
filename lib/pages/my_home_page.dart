@@ -1,27 +1,58 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_im_app/pages/sketch_page/sketch_page.dart';
 import 'package:get/get.dart';
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _currentIndex = 0;
+  List<Widget> pages = [
+    Text('Home', style: _textStyle),
+    SketchPage()
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Home Page'),
-        leading: IconButton(
-          padding: const EdgeInsets.fromLTRB(16, 8, 0, 8),
-          icon: const Icon(Icons.arrow_back_ios),
-          color: const Color(0xff2d4154),
-          onPressed: () {
-            Get.back();
-          },
-        ),
+      body: Center(
+        child: pages[_currentIndex],
       ),
-      body: Container(
-        color: Colors.blue.shade100,
+      bottomNavigationBar: NavigationBar(
+        backgroundColor: Colors.teal,
+        animationDuration: const Duration(milliseconds: 600),
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (int newIndex) {
+          setState(() {
+            _currentIndex = newIndex;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+              selectedIcon: Icon(Icons.home),
+              icon: Icon(Icons.home_outlined),
+              label: 'Home'),
+          NavigationDestination(
+              selectedIcon: Icon(Icons.format_paint),
+              icon: Icon(Icons.format_paint_outlined),
+              label: 'Sketch')
+        ],
       ),
     );
   }
+
+  void _gotoSketchPage() {
+    Get.toNamed('/sketch');
+  }
 }
+
+const TextStyle _textStyle = TextStyle(
+    fontSize: 40,
+    fontWeight: FontWeight.bold,
+    letterSpacing: 2,
+    fontStyle: FontStyle.italic);
