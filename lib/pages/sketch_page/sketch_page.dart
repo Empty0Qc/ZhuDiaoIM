@@ -1,10 +1,8 @@
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 
 class SketchPage extends StatelessWidget {
   const SketchPage({Key? key}) : super(key: key);
@@ -24,7 +22,9 @@ class SketchPad extends StatefulWidget {
 
 class _SketchPadState extends State<SketchPad> {
   Uint8List? _bytes;
-  ValueNotifier<Path> _current = ValueNotifier(Path());
+  final ValueNotifier<Path> _current = ValueNotifier(Path());
+  final ValueNotifier<Color> _color = ValueNotifier(Colors.black);
+  bool _isColorsToolShow = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,18 +32,19 @@ class _SketchPadState extends State<SketchPad> {
       onPanStart: (details) {
         _current.value
             .moveTo(details.localPosition.dx, details.localPosition.dy);
-        _current.value.lineTo(
-            details.localPosition.dx + 1, details.localPosition.dy + 1);
+        _current.value
+            .lineTo(details.localPosition.dx + 1, details.localPosition.dy + 1);
       },
       onPanUpdate: (details) {
-        _current.value
-            .lineTo(details.localPosition.dx, details.localPosition.dy);
-        _current.notifyListeners();
+        setState(() {
+          _current.value
+              .lineTo(details.localPosition.dx, details.localPosition.dy);
+        });
       },
       onPanEnd: (_) async {
         final render = (context.findRenderObject() as RenderRepaintBoundary);
         final imageBytes = (await (await render.toImage())
-            .toByteData(format: ImageByteFormat.png))!
+                .toByteData(format: ImageByteFormat.png))!
             .buffer
             .asUint8List();
         setState(() {
@@ -53,33 +54,114 @@ class _SketchPadState extends State<SketchPad> {
       },
       child: Stack(
         children: [
+          Center(
+              child: Positioned(
+                  left: 0, right: 0, top: 40, child: Text('Draw here'))),
           if (_bytes != null) Image.memory(_bytes!, gaplessPlayback: true),
           Container(color: Colors.yellow[100]!.withOpacity(0.5)),
           RepaintBoundary(
             child: CustomPaint(
                 willChange: true,
-                painter: SketchPainter(_current),
+                painter: SketchPainter(_current, _color),
                 size: Size.infinite),
-          )
+          ),
+          Positioned(
+              right: 0,
+              bottom: 0,
+              child: IconButton(
+                onPressed: () {
+                  _current.value = Path();
+                  setState(() {
+                    _bytes = null;
+                  });
+                },
+                icon: const Icon(Icons.cleaning_services_sharp),
+              )),
+          Positioned(
+              left: 0,
+              bottom: 0,
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _isColorsToolShow = !_isColorsToolShow;
+                      });
+                    },
+                    icon: const Icon(Icons.color_lens_outlined),
+                  ),
+                  if (_isColorsToolShow) _getColorsPallet()
+                ],
+              ))
         ],
       ),
-    )
-    ;
+    );
+  }
+
+  _getColorsPallet() {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _color.value = Colors.red;
+              _isColorsToolShow = false;
+            });
+          },
+          child: Container(
+              margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                  color: Colors.red, borderRadius: BorderRadius.circular(10)),
+              height: 20,
+              width: 20),
+        ),
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _color.value = Colors.blue;
+              _isColorsToolShow = false;
+            });
+          },
+          child: Container(
+              margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(10)),
+              height: 20,
+              width: 20),
+        ),
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _color.value = Colors.green;
+              _isColorsToolShow = false;
+            });
+          },
+          child: Container(
+              margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                  color: Colors.green, borderRadius: BorderRadius.circular(10)),
+              height: 20,
+              width: 20),
+        )
+      ],
+    );
   }
 }
 
 class SketchPainter extends CustomPainter {
   final ValueNotifier<Path> path;
+  ValueNotifier<Color> color;
 
-  SketchPainter(this.path) : super(repaint: path);
+  SketchPainter(this.path, this.color) : super(repaint: path);
 
-  static final pen = Paint()
+  var pen = Paint()
     ..color = Colors.black
     ..style = PaintingStyle.stroke
     ..strokeWidth = 2.0;
 
   @override
   void paint(Canvas canvas, Size size) {
+    pen.color = color.value;
     canvas.drawPath(path.value, pen);
   }
 

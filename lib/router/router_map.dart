@@ -7,7 +7,7 @@ import '../pages/splash_page.dart';
 
 class RouterMap {
   static List<GetPage> getPages = [
-    GetPage(name: '/', page: () => const SplashPage()),
+    // GetPage(name: '/', page: () => const SplashPage()),
     GetPage(name: '/login', page: () => const LoginPage()),
     GetPage(name: '/home', page: () =>  const MyHomePage()),
     GetPage(name: '/sketch', page: () => const SketchPage())

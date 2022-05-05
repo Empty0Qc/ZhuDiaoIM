@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       color: Colors.white,
       title: 'Flutter Project',
+      initialRoute: '/login',
       getPages: RouterMap.getPages,
 
       /// page change Anim
