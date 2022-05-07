@@ -12,8 +12,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   List<Widget> pages = [
-    Text('Home', style: _textStyle),
-    SketchPage()
+    const Text('Home', style: _textStyle),
+    const SketchPage()
   ];
 
   @override

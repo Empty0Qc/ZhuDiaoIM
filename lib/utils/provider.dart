@@ -35,3 +35,12 @@ class AppTheme with ChangeNotifier {
 
   get brightness => _brightness;
 }
+
+class SketchProvider {
+  static const List<Color> sketchColorPicker = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.deepOrangeAccent
+  ];
+}

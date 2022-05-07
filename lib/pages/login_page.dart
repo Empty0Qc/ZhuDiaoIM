@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
             "or",
             style: TextStyle(fontWeight: FontWeight.w300),
           ),
-          Container(
+          SizedBox(
             height: 132,
             child: Column(
               children: <Widget>[
@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                 SpUtil().setString("passWord", _passwordController.text);
                 _toHomePage();
               } else {
-                print("password or user is invalid");
+                printInfo(info: "password or user is invalid");
               }
             },
             child: Container(

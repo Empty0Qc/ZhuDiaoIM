@@ -3,13 +3,16 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_im_app/widgets/ColorSelectItemWiget.dart';
+
+import '../../utils/provider.dart';
 
 class SketchPage extends StatelessWidget {
   const SketchPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SketchPad();
+    return const SketchPad();
   }
 }
 
@@ -25,6 +28,7 @@ class _SketchPadState extends State<SketchPad> {
   final ValueNotifier<Path> _current = ValueNotifier(Path());
   final ValueNotifier<Color> _color = ValueNotifier(Colors.black);
   bool _isColorsToolShow = false;
+  bool _isGuideTextShow = true;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +43,7 @@ class _SketchPadState extends State<SketchPad> {
         setState(() {
           _current.value
               .lineTo(details.localPosition.dx, details.localPosition.dy);
+          _isGuideTextShow = false;
         });
       },
       onPanEnd: (_) async {
@@ -54,9 +59,16 @@ class _SketchPadState extends State<SketchPad> {
       },
       child: Stack(
         children: [
-          Center(
-              child: Positioned(
-                  left: 0, right: 0, top: 40, child: Text('Draw here'))),
+          if (_isGuideTextShow)
+            const Center(
+                child: Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 40,
+                    child: Text(
+                      'Draw here',
+                      style: TextStyle(fontSize: 30),
+                    ))),
           if (_bytes != null) Image.memory(_bytes!, gaplessPlayback: true),
           Container(color: Colors.yellow[100]!.withOpacity(0.5)),
           RepaintBoundary(
@@ -73,6 +85,7 @@ class _SketchPadState extends State<SketchPad> {
                   _current.value = Path();
                   setState(() {
                     _bytes = null;
+                    _isGuideTextShow = true;
                   });
                 },
                 icon: const Icon(Icons.cleaning_services_sharp),
@@ -101,49 +114,21 @@ class _SketchPadState extends State<SketchPad> {
   _getColorsPallet() {
     return Row(
       children: [
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _color.value = Colors.red;
-              _isColorsToolShow = false;
-            });
-          },
-          child: Container(
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                  color: Colors.red, borderRadius: BorderRadius.circular(10)),
-              height: 20,
-              width: 20),
-        ),
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _color.value = Colors.blue;
-              _isColorsToolShow = false;
-            });
-          },
-          child: Container(
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                  color: Colors.blue, borderRadius: BorderRadius.circular(10)),
-              height: 20,
-              width: 20),
-        ),
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _color.value = Colors.green;
-              _isColorsToolShow = false;
-            });
-          },
-          child: Container(
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                  color: Colors.green, borderRadius: BorderRadius.circular(10)),
-              height: 20,
-              width: 20),
-        )
+        for (final color in SketchProvider.sketchColorPicker)
+          _getGestureDetector(color)
       ],
+    );
+  }
+
+  _getGestureDetector(Color color) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _color.value = color;
+          _isColorsToolShow = false;
+        });
+      },
+      child: ColorSelectItemWidget(color),
     );
   }
 }
@@ -166,5 +151,5 @@ class SketchPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_) => true;
+  bool shouldRepaint(oldDelegate) => true;
 }
